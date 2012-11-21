@@ -27,7 +27,7 @@ for next_frame_nr = 86:285
     next_frame_name = [DIRECTORY filesep 'frame' num2str(next_frame_nr,'%04d') '.png'];
 	next_frame = im2double(imread(next_frame_name));
     
-    target = findTarget( current, next_frame, target, 10 );
+    [target, distance] = findTarget( current, next_frame, target, 20 );
     current = next_frame;
     % *your tracking-code here*
     imshow( next_frame );

@@ -1,4 +1,4 @@
-function target = findTarget( current, next_frame, target, bins )
+function [target, distance] = findTarget( current, next_frame, target, bins )
     % Initialization
     smallest = inf;
     parameters = zeros(2, 1);
@@ -39,7 +39,7 @@ function target = findTarget( current, next_frame, target, bins )
             
             % Check if distance is smaller
             if distance < smallest
-                smallest    = distance;
+                smallest   = distance;
                 parameters = [i;j];
             end
         end

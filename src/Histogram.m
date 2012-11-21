@@ -27,7 +27,6 @@ function output = Histogram( image, bins, dim )
                     min( bins, floor( image(i,dim(3)) * bins ) + 1) ) + 1;
         end
     end
-    
     return;
 end
 
