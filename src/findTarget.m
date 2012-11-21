@@ -1,13 +1,10 @@
-function [target, distance] = findTarget( current, next_frame, target, bins )
+function target = findTarget( target_hist, next_frame, target, bins )
     % Initialization
     smallest = inf;
     parameters = zeros(2, 1);
     stepsize = 10;
     window       = [ target(1) - target(3), target(2) - target(4), target(1) + 2 * target(3), target(2) + 2 * target(4)];
-    image_size   = size( current );
-
-    % Crop the target frame
-    target_frame = imcrop( current, target );
+    image_size   = size( next_frame );
     
     % Checking if window size is valid
     if window(1) < 1
@@ -22,9 +19,7 @@ function [target, distance] = findTarget( current, next_frame, target, bins )
     if window(4) > image_size(1)
         window(3) = image_size(1);
     end
-
-    % Histogram of the target
-    target_hist = Histogram( target_frame, bins, [1,2,3] );
+    
     % Loop over candidate frames.
     for i = window(1) : stepsize : window(3)
         for j = window(2):10:window(4)
@@ -35,7 +30,7 @@ function [target, distance] = findTarget( current, next_frame, target, bins )
             candidate_hist  = Histogram( candidate_frame, bins, [1,2,3] );
             
             % Calculate Distance between histogram
-            distance = euclideanDistance( target_hist, candidate_hist );
+            distance = bhattacharyyaDistance( target_hist, candidate_hist );
             
             % Check if distance is smaller
             if distance < smallest
