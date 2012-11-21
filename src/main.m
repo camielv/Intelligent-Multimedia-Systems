@@ -33,9 +33,9 @@ for next_frame_nr = 86:285
     next_frame_name = [DIRECTORY filesep 'frame' num2str(next_frame_nr,'%04d') '.png'];
 	next_frame = im2double(imread(next_frame_name));
     
+    % *your tracking-code here*
     target = findTarget( target_hist, next_frame, target, bins );
     current = next_frame;
-    % *your tracking-code here*
     imshow( next_frame );
     
     % Draw rectangle at location
@@ -49,4 +49,6 @@ end
 %save_movie(all_frames, 'your_movie.avi', 15, 100);
 
 close all;
-%}
+
+%% Assignment 3
+% Kernel histograms here
