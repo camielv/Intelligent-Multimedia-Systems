@@ -12,7 +12,7 @@ function output = kernel(target)
     % Each kernel entry is the distance to the middle
     for i=1:height
         for j=1:width
-             kernel(i,j) = i-midHeight^2 + j-midWidth^2;
+             kernel(i,j) = (i-midHeight)^2 + (j-midWidth)^2;
         end
     end
     
