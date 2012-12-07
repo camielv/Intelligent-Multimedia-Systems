@@ -13,11 +13,11 @@ function target = findTarget( target_hist, next_frame, target, bins )
     if window(2) < 1
         window(2) = 1;
     end
-    if window(3) > image_size(2)
-        window(3) = image_size(2);
+    if window(3) > image_size(2) - target(3)
+        window(3) = image_size(2) - target(3);
     end
-    if window(4) > image_size(1)
-        window(3) = image_size(1);
+    if window(4) > image_size(1) - target(4)
+        window(4) = image_size(1) - target(4);
     end
     
     % Loop over candidate frames.

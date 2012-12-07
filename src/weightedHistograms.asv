@@ -1,0 +1,38 @@
+function output = weightedHistogram( image, bins, dim )
+% weightedHistogram creates a weighted histogram of the image
+% image: a image.
+% bins: a scalar of bins.
+% dim: vector of dimensions
+
+    % Initialize histogram.
+    output = zeros( ones(1,size(dim,2)) * bins );
+    
+    % Make kernel
+    weightedKernel = kernel(image);
+    
+    % Reshape image and kernel for for loop
+    image = double(reshape( image, size( image, 1 ) * size( image, 2 ), 3));
+    weightedKernel = double(reshape( weightedKernel, size(weightedKernel, 1) * size(weightedKernel, 2)), 1);
+
+    % Create 2D histogram
+    if size(dim, 2) == 2
+        for i = 1: size( image, 1 )
+            
+            output( min( bins, floor( image(i,dim(1)) * bins ) + weight), ...
+                    min( bins, floor( image(i,dim(2)) * bins ) + weight) ) = ...
+            output( min( bins, floor( image(i,dim(1)) * bins ) + weight), ...
+                    min( bins, floor( image(i,dim(2)) * bins ) + weight) ) + 1;
+        end
+    % Create 3D histogram
+    elseif size(dim, 2) == 3
+        for i = 1: size( image, 1 )
+            output( min( bins, floor( image(i,dim(1)) * bins ) + weight), ...
+                    min( bins, floor( image(i,dim(2)) * bins ) + weight), ...
+                    min( bins, floor( image(i,dim(3)) * bins ) + weight)) = ...
+            output( min( bins, floor( image(i,dim(1)) * bins ) + weight), ...
+                    min( bins, floor( image(i,dim(2)) * bins ) + weight), ...
+                    min( bins, floor( image(i,dim(3)) * bins ) + 1) ) + 1;
+        end
+    end
+    return;
+end
