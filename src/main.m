@@ -28,13 +28,15 @@ rectangle('Position', target, 'LineWidth',2, 'EdgeColor','b');
 hold off;
 
 % all_frames = [getframe(gca)];
-
+dim = [1,2,3];
+q = weightedHistogram( next_frame, bins, dim );
 for next_frame_nr = 86:285
     next_frame_name = [DIRECTORY filesep 'frame' num2str(next_frame_nr,'%04d') '.png'];
 	next_frame = im2double(imread(next_frame_name));
     
     % *your tracking-code here*
-    target = findTarget( target_hist, next_frame, target, bins );
+%     target = findTarget( target_hist, next_frame, target, bins );
+    target = meanshift(next_frame, q, target, bins, dim);
     current = next_frame;
     imshow( next_frame );
     
