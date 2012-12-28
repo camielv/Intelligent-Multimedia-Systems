@@ -1,8 +1,8 @@
-function path = meanShiftTracker(movie)
+function path = meanShiftTracker(movie, rgb)
     % Read movie
     frames     = VideoReader(movie);
     num_frames = frames.numberOfFrames;
-    current    = RGBtorgb(read(frames, 1));
+    current    = im2double(read(frames, 1));
     bins       = 16;
         
     % Datastructure to safe positions 
@@ -18,11 +18,17 @@ function path = meanShiftTracker(movie)
     title('Select target and double click the rectangle when finished');
     h = imrect;
     target = round(wait(h));
-    
+        
     % Draw selection
     hold on;
     rectangle('Position', target, 'LineWidth',2, 'EdgeColor','b');
     hold off;
+    
+    % If normalized rgb
+    if rgb
+        1
+        current = RGBtorgb(current);
+    end
     
     % Determine corners (top left and bottom right)
     tl = [target(1); target(2)];
@@ -53,7 +59,12 @@ function path = meanShiftTracker(movie)
     
     for i = 2:num_frames
         % Read next frame
-        current = RGBtorgb(read(frames, 1));
+        orig    = im2double(read(frames, i));
+        current = orig;
+        
+        if rgb
+            current = RGBtorgb(orig);
+        end
         
         % Compute new position using meanshift
         y1 = meanShift(current, bins, grid, y0, length, q, kernel, dim_x, dim_y);
@@ -63,7 +74,7 @@ function path = meanShiftTracker(movie)
         end
         
         % Show the next frame
-        imshow(current);
+        imshow(orig);
         
         % Draw Rectangle
         target = [y1(1) - half_width, y1(2) - half_height, 2 * half_width, 2 * half_height];

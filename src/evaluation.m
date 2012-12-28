@@ -37,28 +37,26 @@ end
 
 %% Save video
 %frames = mmreader('../data/video.mpg');
-video       = load('../data/FRAMES.mat');
-video_cells = struct2cell(video.FRAMES);
-frames      = video_cells(1, :);
-num_frames  = size(frames, 2);
-
+path = ['..' filesep 'data' filesep 'video4'];
+num_frames = 1820;
 %# figure
 figure, set(gcf, 'Color','white')
 
 %# create AVI object
-vidObj = VideoWriter('video1.avi');
+vidObj = VideoWriter('video4.avi');
 vidObj.Quality = 100;
 vidObj.FrameRate = 15;
 open(vidObj);
 
 %# create movie
-for i=1:num_frames
-   imshow(im2double(frames{i}));
-   drawnow;
-   writeVideo(vidObj, getframe(gca));
+for i=1200:1500
+    frame_name = [path filesep 'frame' num2str(i,'%05d') '.jpg'];
+	imshow(im2double(imread(frame_name)));
+    drawnow;
+    writeVideo(vidObj, getframe(gca));
 end
 
 close(gcf)
 %# save as AVI file, and open it using system video player
 close(vidObj);
-winopen('video1.avi')
+winopen('video4.avi')
