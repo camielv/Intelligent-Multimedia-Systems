@@ -11,10 +11,10 @@ function path = meanShiftTracker()
     video_cells = struct2cell(video.FRAMES);
     frames      = video_cells(1, :);
     num_frames  = size(frames, 2);
-    current     = im2double(frames{1});
+    current     = RGBtorgb(frames{1});
     
     % Datastructure to safe positions 
-    path = zeros(2, num_frames);
+    path = zeros(num_frames, 2);
     
     % Dimensions
     %dim_x = frames.Width;
@@ -56,13 +56,13 @@ function path = meanShiftTracker()
     y0 = round([br(1) - half_width; br(2) - half_height]);
     
     % Save path
-    path(:, 1) = y0;
+    path(1, :) = y0;
     
     q = createHistogram(current, bins, grid, y0, length, kernel, dim_x, dim_y);
     
     for i = 2:num_frames
         % Read next frame
-        current = im2double(frames{i});
+        current = RGBtorgb(frames{i});
         
         % Compute new position using meanshift
         y1 = meanShift(current, bins, grid, y0, length, q, kernel, dim_x, dim_y);
@@ -82,7 +82,7 @@ function path = meanShiftTracker()
         drawnow;
         
         % Save path
-        path(:, i) = y1;
+        path(i, :) = y1;
     end
     
     close all

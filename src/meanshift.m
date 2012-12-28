@@ -1,77 +1,53 @@
-function target = meanshift(next_frame, q, target, bins, dim )
-    % Initialization
-    upperleft   = [target(1); target(2)];
-    bottomright = [target(1) + target(3); target(2) + target(4)];  
-    midWidth    = floor((bottomright(1) - upperleft(1)) / 2);
-    midHeight   = floor((bottomright(2) - upperleft(2)) / 2);
+function y1 = meanShift(image, bins, grid, y0, n, q, kernel, dim_x, dim_y)
+    y1 = [0; 0];
     
-    y0 = round([target(1) + midWidth ; target(2) + midHeight]);
-    y1 = [0,0];
+    % Compute rho by bhattacharyya coefficient
+    y0   = round(y0);
+    p    = createHistogram(image, bins, grid, y0, n, kernel, dim_x, dim_y);
+    rho0 = sum(sqrt(p(:) .* q(:)));
     
-    % Create candidate histogram
-    p = weightedHistogram(next_frame, bins, dim);
-    % Calculate bhattacharyya distance
-    rho0 = bhattacharyyaDistance(q, p);
+    % Initialize weights
+    weights = zeros(1, n);
     
-    image_size = size(next_frame);
-    weights    = zeros(1, image_size);
-    stepsize   = 10;
-    % Region of Interest  2*width x 2*height pixels centred on the candidate position
-    window     = [target(1) - target(3), target(2) - target(4), ...
-                  target(1) + 2 * target(3), target(2) + 2 * target(4)];
-
-    % Checking if window size is valid
-    if window(1) < 1
-        window(1) = 1;
-    end
-    if window(2) < 1
-        window(2) = 1;
-    end
-    if window(3) > image_size(2) - target(3)
-        window(3) = image_size(2) - target(3);
-    end
-    if window(4) > image_size(1) - target(4)
-        window(4) = image_size(1) - target(4);
-    end
+    % Find for each pixel the correct bin
+    bin = min(bins, floor(image * bins) + 1);
     
-    window = round(window);
+    % Absolute position
+    abs_x = y0(1) + grid(1, :);
+    abs_y = y0(2) + grid(2, :);
     
-    bin = min(bins, floor( next_frame * bins ) + 1);
-    
-    % Loop over candidate frames.
-    for i = window(1):stepsize:window(3)
-        for j = window(2):stepsize:window(4)
-            % Crop candidate frame
-            candidate_pos = imcrop( next_frame, [i, j, target(3), target(4)] );
+    for i = 1:n
+        % Find image positions
+        pos_x = abs_x(1, i);
+        pos_y = abs_y(1, i);
+        
+        % Check if its inside image and histogram not zero
+        if pos_x > 0 && pos_x < dim_x && pos_y > 0 && pos_y < dim_y && ...
+                p(bin(pos_y, pos_x, 1), bin(pos_y, pos_x, 2), bin(pos_y, pos_x, 3)) ~= 0
             
-            % Create histograms
-            p = weightedHistogram(candidate_pos, bins, dim);
-            weights(i) = sqrt(q(bin(i,j,1), bin(i,j,2), bin(i,j,3))/...
-                p( bin(i,j,1), bin(i,j,2), bin(i,j,3)));
-                      
-            % Update y1
-            y1 = y1 + weights(i) * [i,j];
-            
+            weights(i) = q(bin(pos_y, pos_x, 1), bin(pos_y, pos_x, 2), bin(pos_y, pos_x, 3)) / ...
+                p(bin(pos_y, pos_x, 1), bin(pos_y, pos_x, 2), bin(pos_y, pos_x, 3));
         end
+        
+        % Update y1
+        y1 = y1 + weights(i) * [pos_x; pos_y];
     end
     
-    p = weightedHistogram(image, bins, dim);
-    rho1 = bhattacharyyaDistance(q, p);
-
+    % Normalize y1
+    real_y1 = y1 / sum(weights);
+    y1 = round(real_y1);
+    
+    % Compute new histogram and bhattacharyya
+    p    = createHistogram(image, bins, grid, y1, n, kernel, dim_x, dim_y);
+    rho1 = sum(sqrt(p(:) .* q(:)));
+    
+    % While rho1 is smaller than rho0 find better histograms.
     while rho1 < rho0
-         % Find new position
-         real_y1 = ( (y0 + real_y1) / 2 );
-         y1 = round( real_y1 );
-         
-         %TODO check midwidth bla
-         candidate_pos = imcrop( next_frame, [y1(1), y1(2), target_width, target_height] );
-         
-         % Calculate new p
-         p = weightedHistogram(candidate_pos, bins, dim);
-         
-         % Calculate new battacharyya distance
-         rho1 = bhattacharyyaDistance(q, p);
+        real_y1 = (y0 + real_y1) / 2;
+        y1 = round(real_y1);
+        
+        % Compute new histogram and new bhattacharyya
+        p    = createHistogram(image, bins, grid, y1, n, kernel, dim_x, dim_y);
+        rho1 = sum(sqrt(p(:) .* q(:)));
     end
-    
-    target = [y1(1), y1(2), target(3), target(4)];
 end
