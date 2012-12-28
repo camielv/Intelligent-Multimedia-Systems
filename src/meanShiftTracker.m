@@ -1,25 +1,16 @@
-function path = meanShiftTracker()
+function path = meanShiftTracker(movie)
     % Read movie
-    %frames     = mmreader(movie);
-    %num_frames = frames.numberOfFrames;
-    %path       = zeros(2, num_frames);
-    %current    = im2double(read(frames, 1));
+    frames     = VideoReader(movie);
+    num_frames = frames.numberOfFrames;
+    current    = RGBtorgb(read(frames, 1));
     bins       = 16;
-    
-    % Temporary
-    video       = load('FRAMES.mat');
-    video_cells = struct2cell(video.FRAMES);
-    frames      = video_cells(1, :);
-    num_frames  = size(frames, 2);
-    current     = RGBtorgb(frames{1});
-    
+        
     % Datastructure to safe positions 
     path = zeros(num_frames, 2);
     
     % Dimensions
-    %dim_x = frames.Width;
-    %dim_y = frames.Height;
-    [dim_y, dim_x] = size(current);
+    dim_x = frames.Width;
+    dim_y = frames.Height;
     
     % Select target using imrect
     figure(1);
@@ -62,7 +53,7 @@ function path = meanShiftTracker()
     
     for i = 2:num_frames
         % Read next frame
-        current = RGBtorgb(frames{i});
+        current = RGBtorgb(read(frames, 1));
         
         % Compute new position using meanshift
         y1 = meanShift(current, bins, grid, y0, length, q, kernel, dim_x, dim_y);
