@@ -15,7 +15,7 @@ function path = bruteForceTracker()
     current     = im2double(frames{1});
     
     % Datastructure to safe positions 
-    path = zeros(2, num_frames);
+    path = zeros(num_frames, 2);
         
     % Select target using imrect
     figure(1);
@@ -23,6 +23,7 @@ function path = bruteForceTracker()
     title('Select target and double click the rectangle when finished');
     h = imrect;
     target = round(wait(h));
+    target = [140, 282, 15, 45];
     
     % Draw selection
     hold on;
@@ -41,7 +42,7 @@ function path = bruteForceTracker()
     y0 = round([br(1) - half_width; br(2) - half_height]);
     
     % Save path
-    path(:, 1) = y0;
+    path(1, :) = y0;
     
     q_frame = imcrop(current, target);
     q       = Histogram(q_frame, bins, [1,2,3]);
@@ -66,7 +67,7 @@ function path = bruteForceTracker()
         br = [target(1) + target(3); target(2) + target(4)];
         y1 = round([br(1) - half_width; br(2) - half_height]);
 
-        path(:, i) = y1;
+        path(i, :) = y1;
     end
     close all;
 end
